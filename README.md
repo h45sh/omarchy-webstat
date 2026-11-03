@@ -23,9 +23,6 @@ This plugin interacts with the `webstat` Python CLI engine. Ensure `webstat` is 
 pipx install webstat
 # or: pip install webstat
 
-# Or via AUR (Arch Linux / Omarchy):
-yay -S webstat-git
-
 # Or install from source:
 git clone https://github.com/h45sh/webstat.git
 cd webstat

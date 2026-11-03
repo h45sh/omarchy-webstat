@@ -305,7 +305,7 @@ Panel {
                 width: parent.width
                 wrapMode: Text.WordWrap
                 textFormat: Text.PlainText
-                text: "Install the background engine to start monitoring sites from this widget:\n\n  • pipx install webstat  (or pip install webstat)\n  • yay -S webstat-git  (AUR)"
+                text: "Install the background engine to start monitoring sites from this widget:\n\n  • pipx install webstat  (or pip install webstat)"
                 color: root.fg
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption
