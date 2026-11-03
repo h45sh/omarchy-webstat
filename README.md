@@ -17,7 +17,14 @@ Displays live website status, response latencies, and offline counts right in yo
 This plugin interacts with the `webstat` Python CLI engine. Ensure `webstat` is installed on your system `$PATH`:
 
 ```bash
-# Install via git
+# Recommended: Install via pipx / PyPI
+pipx install webstat
+# or: pip install webstat
+
+# Or via AUR (Arch Linux / Omarchy):
+yay -S webstat-git
+
+# Or install from source:
 git clone https://github.com/h45sh/webstat.git
 cd webstat
 pip install .
