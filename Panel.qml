@@ -120,7 +120,7 @@ Panel {
 
   Process {
     id: whichProc
-    command: ["which", "webstat"]
+    command: ["sh", "-c", "command -v webstat >/dev/null 2>&1 && webstat --help >/dev/null 2>&1"]
     onExited: function(exitCode) {
       root.cliInstalled = (exitCode === 0)
       root.cliChecking = false
@@ -129,7 +129,10 @@ Panel {
 
   Process {
     id: removeProc
-    onExited: root.refresh()
+    onExited: function(exitCode) {
+      if (exitCode !== 0) root.checkCli()
+      root.refresh()
+    }
   }
 
   Process {
@@ -142,16 +145,18 @@ Panel {
         pendingInput = ""
       }
     }
-    onExited: {
+    onExited: function(exitCode) {
       root.adding = false
+      if (exitCode !== 0) root.checkCli()
       root.refresh()
     }
   }
 
   Process {
     id: singleCheckProc
-    onExited: {
+    onExited: function(exitCode) {
       root.checkingSiteId = ""
+      if (exitCode !== 0) root.checkCli()
       root.refresh()
     }
   }
@@ -170,7 +175,17 @@ Panel {
       waitForEnd: true
       onStreamFinished: {
         root.checking = false
-        root.checkResult = Model.parseCheckResult(text)
+        var res = Model.parseCheckResult(text)
+        if (!res) {
+          root.checkCli()
+        }
+        root.checkResult = res
+      }
+    }
+    onExited: function(exitCode) {
+      if (exitCode !== 0) {
+        root.checking = false
+        root.checkCli()
       }
     }
   }
@@ -178,8 +193,9 @@ Panel {
   Process {
     id: refreshProc
     command: ["webstat", "refresh"]
-    onExited: {
+    onExited: function(exitCode) {
       root.refreshing = false
+      if (exitCode !== 0) root.checkCli()
       root.refresh()
     }
   }
@@ -187,7 +203,10 @@ Panel {
   Process {
     id: clearProc
     command: ["webstat", "clear"]
-    onExited: root.refresh()
+    onExited: function(exitCode) {
+      if (exitCode !== 0) root.checkCli()
+      root.refresh()
+    }
   }
 
   KeyboardPanel {
@@ -225,21 +244,32 @@ Panel {
             title: "Webstat Monitor"
             foreground: root.fg
             fontFamily: root.fontFamily
-            detail: root.sites.length > 0 ? (root.pendingCount > 0 ? root.pendingCount + " offline" : "All online") : "Idle"
-            meta: root.sites.length + " website(s) in watchlist"
+            detail: !root.cliInstalled ? "CLI engine not found" : (root.sites.length > 0 ? (root.pendingCount > 0 ? root.pendingCount + " offline" : "All online") : "Idle")
+            meta: !root.cliInstalled ? "Install webstat to monitor sites" : (root.sites.length + " website(s) in watchlist")
             iconComponent: Text {
               textFormat: Text.PlainText
               text: "󰖟"
-              color: root.pendingCount > 0 ? "#ef4444" : "#38bdf8"
+              color: !root.cliInstalled ? "#f59e0b" : (root.pendingCount > 0 ? "#ef4444" : "#38bdf8")
               font.family: root.fontFamily
               font.pixelSize: Style.font.display
             }
           }
 
-          // Top Header Action Row (Refresh All + Clear)
+          // Top Header Action Row (Refresh All + Clear + Engine Status)
           Row {
             width: parent.width
             spacing: Style.space(8)
+
+            Button {
+              text: root.cliChecking ? "Checking…" : (root.cliInstalled ? "✓ Engine Active" : "⚠️ Check Engine")
+              fontSize: Style.font.caption
+              foreground: root.cliInstalled ? "#22c55e" : "#f59e0b"
+              fontFamily: root.fontFamily
+              bordered: true
+              tooltipText: root.cliInstalled ? "webstat CLI engine is active (click to re-verify)" : "webstat CLI engine is missing (click to check)"
+              active: root.cliChecking
+              onClicked: root.checkCli()
+            }
 
             Button {
               text: root.refreshing ? "Refreshing…" : "↻ Refresh All"
@@ -652,8 +682,10 @@ Panel {
                     foreground: root.fg
                     fontFamily: root.fontFamily
                     bordered: true
+                    enabled: root.cliInstalled
+                    opacity: root.cliInstalled ? 1.0 : 0.6
                     active: root.checkingSiteId === siteRow.modelData.id
-                    tooltipText: "Re-check this site immediately"
+                    tooltipText: root.cliInstalled ? "Re-check this site immediately" : "webstat CLI engine required"
                     onClicked: root.checkSingleSite(siteRow.modelData.id, siteRow.modelData.url)
                   }
 
