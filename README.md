@@ -4,6 +4,8 @@ Omarchy shell top-bar widget and management panel for [webstat](https://github.c
 
 Displays live website status, response latencies, and offline counts right in your Omarchy panel. Automatically notifies you when offline services recover and allows one-click browser launch.
 
+![Webstat Plugin Preview](assets/marketplace-preview.png)
+
 ## Features
 
 - **Live Top-Bar Status Indicator**: Minimalist globe icon with dynamic badge counting offline sites.
