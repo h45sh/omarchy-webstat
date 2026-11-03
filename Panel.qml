@@ -24,8 +24,15 @@ Panel {
   property bool adding: false
   property bool refreshing: false
   property string checkingSiteId: ""
-  property bool cliInstalled: true
+  property bool cliInstalled: false
   property bool cliChecking: false
+
+  onOpenedChanged: {
+    if (root.opened) {
+      root.checkCli()
+      root.refresh()
+    }
+  }
 
   function checkCli() {
     root.cliChecking = true
