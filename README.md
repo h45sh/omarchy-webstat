@@ -50,6 +50,24 @@ To update the plugin in the future:
 omarchy plugin update h45sh.webstat
 ```
 
+## Removal
+
+To disable or remove the plugin:
+
+```bash
+# Disable without uninstalling
+omarchy plugin disable h45sh.webstat
+
+# Completely remove the plugin
+omarchy plugin remove h45sh.webstat
+```
+
+For manual installations:
+```bash
+omarchy plugin disable h45sh.webstat
+rm -rf ~/.config/omarchy/plugins/h45sh.webstat
+```
+
 ## Development & Manual Installation
 
 ```bash
