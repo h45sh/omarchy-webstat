@@ -43,8 +43,10 @@ Panel {
     if (hostWidget && hostWidget.refresh) hostWidget.refresh()
   }
 
-  function openSite(url) {
-    if (url) Qt.openUrlExternally(url)
+  function openSite(siteId) {
+    if (!siteId) return
+    openProc.command = ["webstat", "open", "--id", siteId]
+    openProc.running = true
   }
 
   function removeSite(targetId) {
@@ -59,7 +61,7 @@ Panel {
     removeProc.running = true
   }
 
-  function checkSingleSite(siteId, url) {
+  function checkSingleSite(siteId) {
     root.checkingSiteId = siteId
     singleCheckProc.command = ["webstat", "check", "--id", siteId]
     singleCheckProc.running = true
@@ -124,6 +126,13 @@ Panel {
     onExited: function(exitCode) {
       root.cliInstalled = (exitCode === 0)
       root.cliChecking = false
+    }
+  }
+
+  Process {
+    id: openProc
+    onExited: function(exitCode) {
+      if (exitCode !== 0) root.checkCli()
     }
   }
 
@@ -686,7 +695,7 @@ Panel {
                     opacity: root.cliInstalled ? 1.0 : 0.6
                     active: root.checkingSiteId === siteRow.modelData.id
                     tooltipText: root.cliInstalled ? "Re-check this site immediately" : "webstat CLI engine required"
-                    onClicked: root.checkSingleSite(siteRow.modelData.id, siteRow.modelData.url)
+                    onClicked: root.checkSingleSite(siteRow.modelData.id)
                   }
 
                   Button {
@@ -695,8 +704,10 @@ Panel {
                     foreground: root.fg
                     fontFamily: root.fontFamily
                     bordered: true
-                    tooltipText: "Open in browser"
-                    onClicked: root.openSite(siteRow.modelData.url)
+                    enabled: root.cliInstalled
+                    opacity: root.cliInstalled ? 1.0 : 0.6
+                    tooltipText: root.cliInstalled ? "Open in browser" : "webstat CLI engine required"
+                    onClicked: root.openSite(siteRow.modelData.id)
                   }
 
                   Button {
